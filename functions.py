@@ -506,12 +506,12 @@ def similarity_score(df, inv_lst2, vocabulary, cleanQString):
     # HERE STARTS THE SIMILARITY SCORE!
     top_k_documents = []
     for i, row in df.iterrows():
-        card_d_i = 1 / math.sqrt( sum(documents[i-1].values()) )
+        card_d_i = 1 / math.sqrt( sum(documents[i].values()) )
 
         somma = 0
         for token in cleanQString:
             try:
-                somma += documents[i-1][token]
+                somma += documents[i][token]
             except:
                 somma += 0
 
