@@ -605,3 +605,58 @@ def create_csv2(vocabulary2):
         for id, word in enumerate(list_of_words, 1):
             term_id_i = "term_id_"+str(id)
             tsv_writer.writerow([word, term_id_i, vocabulary2[word]]) 
+            
+#RQ3.1
+# like the function title
+def open_and_convert_inv_lst(inv_lst_csv):
+    reader = csv.reader(open(inv_lst_csv, 'r'), delimiter=":") # recall a function to open the inverted list..
+    
+    inv_lst = {}
+    for row in reader:
+        k, v = row
+        inv_lst[k] = v
+        
+    for key in inv_lst:
+        inv_lst[key] = make_it_list(inv_lst[key]) # convert and make it dictionary
+    
+    return inv_lst
+
+# map the interested word with corresponding term_id_i
+def map_terms_id(vocabulary, cleanQString):
+    # find each term_id
+    term_id = []           # this is another function useful for mapping the term_id_i with the word into the vocabulary...
+    for token in cleanQString:
+        term = vocabulary.loc[vocabulary["Word"] == token, "Term_id"].values[0]
+        term_id.append(term)
+        
+    return term_id
+
+def search_engine3(cleanQString, inv_lst_csv, vocabulary, df_copy, df):
+    """the first search engine we have created, which only looks at whether the words of the query are found in the plots of the books
+
+    Args:
+        cleanQString (str): the clean query
+        inv_lst_csv (str): the name of the csv file containing the csv file
+    """
+    inv_lst = open_and_convert_inv_lst(inv_lst_csv)
+    
+    term_id = map_terms_id(vocabulary, cleanQString)
+    
+    # find the common documentsdd
+    intersection_list = []
+    for term in term_id:
+        if not intersection_list:
+            intersection_list = inv_lst[term]
+        else:
+            intersection_list = set(intersection_list).intersection(set(inv_lst[term]))
+    
+    new_df = pd.DataFrame(columns=['bookTitle', 'Plot', 'Url'])
+    for row in intersection_list:
+        i = int(row.split("_")[1])
+        #append row to the dataframe
+        new_row = {'bookTitle': df.loc[i, "bookTitle"], 'Plot': df.loc[i, "Plot"], 'Url': df_copy.loc[i, "Url"]}
+        new_df = new_df.append(new_row, ignore_index=True)
+    
+    return new_df
+
+#RQ3.2
