@@ -282,13 +282,13 @@ def createVocabulary(df):
                 vocabulary[word] = ["document_"+str(i)]
     return vocabulary
 
-def create_csv(vocabulary):
+def create_csv(vocabulary, number):
     """create a csv file containing the vocabulary and how often each word is repeated in any given book
 
     Args:
         name_file (str): the name of the csv file we will be creating
     """
-    with open('./vocabulary.tsv', 'w', encoding="utf-8", newline='') as out_file:
+    with open('./vocabulary'+str(number)+'.tsv', 'w', encoding="utf-8", newline='') as out_file:
         tsv_writer = csv.writer(out_file, delimiter='\t')
         tsv_writer.writerow(["Word", "Term_id", "Document_List"])
 
@@ -334,19 +334,19 @@ def make_it_list(word):
     return word
 
 #open vocabulary
-def open_vocabulary():
+def open_vocabulary(number):
     """a quick function to open the dataset vocabulary
 
     Returns:
         dataframe: the vocabulary dataset
     """
-    vocabulary = pd.read_csv('vocabulary.tsv',sep="\t")
+    vocabulary = pd.read_csv('vocabulary'+str(number)+'.tsv',sep="\t")
     vocabulary = vocabulary.drop_duplicates(subset=['Word'])
     vocabulary = vocabulary.reset_index(drop=True)
 
     return vocabulary
 
-def inverted_list(vocabulary):
+def inverted_list(vocabulary, number):
     #create the inverted list
     inv_lst = {}
     for i, row in vocabulary.iterrows():
@@ -354,7 +354,7 @@ def inverted_list(vocabulary):
         inv_lst[term] = make_it_list(vocabulary.at[i, "Document_List"])
     
     #and save it as csv file like the previous consideration about the vocabulary .csv file!
-    with open('inv_lst.csv', 'w') as f:
+    with open('inv_lst'+str(number)+'.csv', 'w') as f:
         for key in inv_lst.keys():
             f.write("%s:%s\n"%(key,inv_lst[key]))
 
@@ -549,3 +549,59 @@ def search_engine2(df_copy, df, inv_lst2, vocabulary, cleanQString):
         new_row = {'bookTitle': df_copy.loc[i, "bookTitle"], 'Plot': df.loc[i, "Plot"], 'Url': df_copy.loc[i, "Url"], 'Similarity': row[0]}
         new_df = new_df.append(new_row, ignore_index=True)
     return new_df
+
+#RQ3
+def newcleaningDataset(df):
+    """a function to clean the dataset
+
+    Args:
+        df (dataframe): the dataset to clean
+
+    Returns:
+        dataframe: the clean dataset
+    """
+    for i, row in df.iterrows():
+        tokenizer = RegexpTokenizer("[\w']+")  # import the tokenizer punctuation
+        
+        for column in ["bookTitle", "bookSeries", "bookAuthors"]:
+            df.at[i, column] = tokenizer.tokenize(df.at[i, column].lower()) # remove the punctuation
+            df.at[i, column] = [w for w in df.at[i, column] if not w in set(stopwords.words('english'))]  # words in english to avoid few data for the cleaning data
+            df.at[i, column] = [PorterStemmer().stem(word) for word in df.at[i, column]] # contesto
+    return df
+
+def createVocabulary2(df, vocabulary):
+    """a function to create a vocabulary, given a dataset
+
+    Args:
+        df (dataframe): the dataset from which we will be creating our vocabulary
+
+    Returns:
+        dictionary: the vocabulary we needed
+    """ 
+    vocabulary2 = vocabulary.copy()
+    for i, row in df.iterrows():
+   
+        for column in ["bookTitle", "bookSeries", "bookAuthors"]:
+            if len(df.at[i, column]) > 0:  # check if the list is empty or not to avoid the eventually error
+                for word in df.at[i, column]:
+                    if word in vocabulary2.keys():
+                        if "document_"+str(i) not in vocabulary2[word]:
+                            vocabulary2[word].append("document_"+str(i))
+                    else:
+                        vocabulary2[word] = ["document_"+str(i)]
+    return vocabulary2
+
+def create_csv2(vocabulary2):
+    """create a csv file containing the vocabulary and how often each word is repeated in any given book
+
+    Args:
+        name_file (str): the name of the csv file we will be creating
+    """
+    with open('./vocabulary2.tsv', 'w', encoding="utf-8", newline='') as out_file:
+        tsv_writer = csv.writer(out_file, delimiter='\t')
+        tsv_writer.writerow(["Word", "Term_id", "Document_List"])
+
+        list_of_words = vocabulary2.keys()
+        for id, word in enumerate(list_of_words, 1):
+            term_id_i = "term_id_"+str(id)
+            tsv_writer.writerow([word, term_id_i, vocabulary2[word]]) 
