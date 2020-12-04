@@ -565,12 +565,15 @@ def newcleaningDataset(df):
         tokenizer = RegexpTokenizer("[\w']+")  # import the tokenizer punctuation
         
         for column in ["bookTitle", "bookSeries", "bookAuthors"]:
-            df.at[i, column] = tokenizer.tokenize(df.at[i, column].lower()) # remove the punctuation
-            df.at[i, column] = [w for w in df.at[i, column] if not w in set(stopwords.words('english'))]  # words in english to avoid few data for the cleaning data
-            df.at[i, column] = [PorterStemmer().stem(word) for word in df.at[i, column]] # contesto
+            try:
+                df.at[i, column] = tokenizer.tokenize(df.at[i, column].lower()) # remove the punctuation
+                df.at[i, column] = [w for w in df.at[i, column] if not w in set(stopwords.words('english'))]  # words in english to avoid few data for the cleaning data
+                df.at[i, column] = [PorterStemmer().stem(word) for word in df.at[i, column]] # contesto
+            except:
+                pass
     return df
 
-def createVocabulary2(df, vocabulary):
+def createVocabulary2(df):
     """a function to create a vocabulary, given a dataset
 
     Args:
@@ -579,17 +582,19 @@ def createVocabulary2(df, vocabulary):
     Returns:
         dictionary: the vocabulary we needed
     """ 
-    vocabulary2 = vocabulary.copy()
+    vocabulary2 = {}
     for i, row in df.iterrows():
-   
-        for column in ["bookTitle", "bookSeries", "bookAuthors"]:
-            if len(df.at[i, column]) > 0:  # check if the list is empty or not to avoid the eventually error
-                for word in df.at[i, column]:
-                    if word in vocabulary2.keys():
-                        if "document_"+str(i) not in vocabulary2[word]:
-                            vocabulary2[word].append("document_"+str(i))
-                    else:
-                        vocabulary2[word] = ["document_"+str(i)]
+        for column in ["bookTitle", "bookSeries", "bookAuthors", "Plot"]:
+            try:
+                if len(df.at[i, column]):  # check if the list is empty or not to avoid the eventually error
+                    for word in df.at[i, column]:
+                        if word in vocabulary2.keys():
+                            if "document_"+str(i) not in vocabulary2[word]:
+                                vocabulary2[word].append("document_"+str(i))
+                        else:
+                            vocabulary2[word] = ["document_"+str(i)]
+            except:
+                print(df.at[i, column])
     return vocabulary2
 
 def create_csv2(vocabulary2):
@@ -661,143 +666,3 @@ def search_engine3(cleanQString, inv_lst_csv, vocabulary, df_copy, df):
     return new_df
 
 #RQ3.2
-def new_inv_lst(inv_lst_csv, vocabulary, df):
-    """create a new inverted list starting from the one we have already defined (why?)
-
-    Args:
-        inv_lst_csv (str): the inverted list we start from
-        vocabulary (DATAFRAME???): the vocabulary we work with to create the inverted list
-    """
-    inv_lst = open_and_convert_inv_lst(inv_lst_csv)
-        
-    #create a second inverted list
-    inv_lst2 = {}
-    
-    for i, row in vocabulary.iterrows():
-        lst_doc = make_it_list(vocabulary.at[i, 'Document_List'])
-        
-        result = []
-        for doc in lst_doc:
-            number_doc = int(doc.split("_")[1])
-            
-            interested_row = df.at[number_doc, "Plot"]
-            
-            interested_word = vocabulary.at[i, "Word"] #i-th word
-            
-            tf = interested_row.count(interested_word) / len(interested_row)
-            
-            idf = math.log(len(df)/len(lst_doc))
-            
-            tf_idf = round(tf * idf, 3)
-            
-            result.append((doc, tf_idf))
-            
-        inv_lst2[vocabulary.at[i, "Term_id"]] = result
-        
-    return inv_lst2
-
-#some functions we will need for the second search engine
-def make_it_list2Version(word):
-    """cleans up the input by removing unnecessary brackets
-
-    Args:
-        word (string): the string that need cleaning up
-
-    Returns:
-        list: a list containing the character???
-    """
-    for sym in ["[", "]", "'", "(", ")"]:
-        word = word.replace(sym, "")
-    word = word.split(", ")
-    
-    return list(word)
-
-# map each term with the corresponding word
-def returnTermId(token, vocabulary):
-    """a function to find each term id
-
-    Args:
-        token (str): the words which ids we need
-
-    Returns:
-        [type]: [description]????? df
-    """
-    return vocabulary.loc[vocabulary["Word"] == token, "Term_id"].values[0]
-
-# create the documents list to make the cosine similarity logic
-def create_documents_list(df, inv_lst2, vocabulary):
-    documents = []                                             
-    for i, row in df.iterrows():
-        tokens = {}
-        for token in df.at[i, "Plot"]:
-            if token != "nan" and token != "null":
-                print(i, token)
-                tuple_list_values = inv_lst2[returnTermId(token, vocabulary)]
-
-                for x in tuple_list_values:
-                    if int(x[0].split("_")[1]) == i:
-                        tokens[token] = x[1]  
-                        break
-
-        documents.append(tokens)
-    
-    return documents
-
-def similarity_score(df, inv_lst2, vocabulary, cleanQString):
-    """a function used to find the similarity score of the books in the dataframe, given a certain inverted list
-
-    Args:
-        df ([type]): [description]
-        inv_lst2 ([type]): [description]
-
-    Returns:
-        [type]: [description]
-    """
-    documents = create_documents_list(df, inv_lst2, vocabulary)
-
-    # HERE STARTS THE SIMILARITY SCORE!
-    top_k_documents = []
-    for i, row in df.iterrows():
-        card_d_i = 1 / math.sqrt( sum(documents[i].values()) )
-
-        somma = 0
-        for token in cleanQString:
-            try:
-                somma += documents[i][token]
-            except:
-                somma += 0
-
-        cosine_similarity = card_d_i * somma
-
-        top_k_documents.append([round(cosine_similarity, 2), "document_"+str(i)])
-        
-    return top_k_documents
-
-# convert the list of top k documents in heap structure
-def heap_k_documents(top_k_documents):
-    heapq.heapify(top_k_documents) 
-    show_top_k_documents = (heapq.nlargest(5, top_k_documents)) 
-    return show_top_k_documents
-
-def search_engine2(df_copy, df, inv_lst2, vocabulary, cleanQString):
-    """the second search engine
-
-    Args:
-        new_df ([type]): [description]
-
-    Returns:
-        [type]: [description]
-    """
-    top_k_documents = similarity_score(df_copy, inv_lst2, vocabulary, cleanQString)
-    
-    # make it heap!
-    show_top_k_documents = heap_k_documents(top_k_documents)
-    
-    new_df = pd.DataFrame(columns=['bookTitle', 'Plot', 'Url', 'Similarity'])
-    for row in show_top_k_documents:
-        i = int(row[1].split("_")[1])
-
-        #append row to the dataframe
-        new_row = {'bookTitle': df_copy.loc[i, "bookTitle"], 'Plot': df.loc[i, "Plot"], 'Url': df_copy.loc[i, "Url"], 'Similarity': row[0]}
-        new_df = new_df.append(new_row, ignore_index=True)
-    return new_df
