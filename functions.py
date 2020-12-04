@@ -480,7 +480,7 @@ def create_documents_list(df, inv_lst2, vocabulary):
     for i, row in df.iterrows():
         tokens = {}
         for token in df.at[i, "Plot"]:
-            if token != "nan":
+            if token != "nan" and token != "null":
                 tuple_list_values = inv_lst2[returnTermId(token, vocabulary)]
 
                 for x in tuple_list_values:
@@ -730,7 +730,8 @@ def create_documents_list(df, inv_lst2, vocabulary):
     for i, row in df.iterrows():
         tokens = {}
         for token in df.at[i, "Plot"]:
-            if token != "nan":
+            if token != "nan" and token != "null":
+                print(i, token)
                 tuple_list_values = inv_lst2[returnTermId(token, vocabulary)]
 
                 for x in tuple_list_values:
