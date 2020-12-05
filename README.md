@@ -2,7 +2,7 @@
 
 Group 10 - Leonardo Masci, Jeremy Sapienza, Antonio Zappia
 
-![alt text](https://www.google.com/url?sa=i&url=https%3A%2F%2Fgoodereader.com%2Fblog%2Felectronic-readers%2Famazon-owns-goodreads-what-now&psig=AOvVaw1oiTXWN2vm4DAG38VbEhvs&ust=1607279975095000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJiDw5_ct-0CFQAAAAAdAAAAABAD)
+![alt text](https://www.google.com/url?sa=i&url=https%3A%2F%2Fknowledgequest.aasl.org%2Fsome-lesser-known-features-of-goodreads-a-great-book-minding-tool%2F&psig=AOvVaw0k7_10YDAihEkY6cByhmpl&ust=1607290205893000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOiHieHkt-0CFQAAAAAdAAAAABAD)
 
 The goal of this project was to gain an understanding of crawling and parsing, while also working with search engines and measures to evaluate their responses, such as the cosine similarity and the tfIdf score. We were asked to create our own dataset by scraping the goodreads website and then create a search engine that would suggest books based on the user's query. We also focused on some book series, to analyze the total number of pages throughout their single books. Finally, we had to face some theory questions regarding recursive and dynamic programming.
 
