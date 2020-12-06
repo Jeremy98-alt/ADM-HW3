@@ -13,4 +13,4 @@ The repository consists of the following files, other than this readme.md file:
 2. __`functions.py`__:
     > A Python script that contains the functions that were used in the `main.ipynb`.
 
-**N.B**: the data that we used are obscured by .gitignore file
+**NB**: the data that we used are obscured by .gitignore file
