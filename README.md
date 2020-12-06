@@ -12,3 +12,5 @@ The repository consists of the following files, other than this readme.md file:
 	> The Jupyter notebook that contains the answers to the main questions. In order to make the reading of this notebook more linear, most of the actual coding is found in the next file.
 2. __`functions.py`__:
     > A Python script that contains the functions that were used in the `main.ipynb`.
+
+**N.B**: the data that we used are obscured by .gitignore file
