@@ -79,8 +79,6 @@ def crawl_urls(n_pages, url_file):
             ip_file.close()
 
     UrlsFiles.close()
-    
-    return print("done")
 
 ##### RQ1.3
 
@@ -382,6 +380,14 @@ def heap_k_documents(top_k_documents, k):
     show_top_k_documents = (heapq.nlargest(k, top_k_documents)) 
     return show_top_k_documents
 
+def dataset_search_engine2(show_top_k_documents, df):
+    new_df = pd.DataFrame(columns=['bookTitle', 'Plot', 'Url', 'Similarity'])
+    for row in show_top_k_documents:
+        #append row to the dataframe
+        new_row = {'bookTitle': df.loc[row[1], "bookTitle"], 'Plot': df.loc[row[1], "Plot"], 'Url': df.loc[row[1], "Url"], 'Similarity': row[0]}
+        new_df = new_df.append(new_row, ignore_index=True)
+    return new_df
+
 ################################ RQ3 ################################ (in this section we will use the functions defined above)
 
 # cleaning the text column values, apply the function for each value through the corresponding column
@@ -482,6 +488,15 @@ def newscore(df1, documents, cleanQString):
         
     return top_k_documents
 
+# create the dataset for this new search engine 2
+def dataset_newsearch_engine2(show_top_k_documents, df):
+    new_df = pd.DataFrame(columns=['bookTitle', 'Plot', 'Url', 'New-Score'])
+    for row in show_top_k_documents:  #append row to the dataframe
+        new_row = {'bookTitle': df.loc[row[1], "bookTitle"], 'Plot': df.loc[row[1], "Plot"], 'Url': df.loc[row[1], "Url"], 'New-Score': row[0]}
+        new_df = new_df.append(new_row, ignore_index=True)
+    
+    return new_df
+
 # sort and show the new_df according to the new score found
 def newsearch_engine2(vocabulary2, df, df1, cleanQString, k):
     # create the new inverted list
@@ -496,10 +511,8 @@ def newsearch_engine2(vocabulary2, df, df1, cleanQString, k):
     # sorted by score
     show_top_k_documents = heap_k_documents(top_k_documents, k)
     
-    new_df = pd.DataFrame(columns=['bookTitle', 'Plot', 'Url', 'New-Score'])
-    for row in show_top_k_documents:  #append row to the dataframe
-        new_row = {'bookTitle': df.loc[row[1], "bookTitle"], 'Plot': df.loc[row[1], "Plot"], 'Url': df.loc[row[1], "Url"], 'New-Score': row[0]}
-        new_df = new_df.append(new_row, ignore_index=True)
+    # create the dataset for this new search engine2
+    new_df = dataset_newsearch_engine2(show_top_k_documents, df)
     
     return new_df
 
