@@ -4,7 +4,7 @@ Group 10 - Leonardo Masci, Jeremy Sapienza, Antonio Zappia
 
 ![alt text](https://goodereader.com/blog/uploads/images/goodreads.jpg)
 
-The goal of this project was to gain an understanding of crawling and parsing, while also working with search engines and measures to evaluate their responses, such as the cosine similarity and the tfIdf score. We were asked to create our own dataset by scraping the goodreads website and then create a search engine that would suggest books based on the user's query. We also focused on some book series, to analyze the total number of pages throughout their single books. Finally, we had to face some theory questions regarding recursive and dynamic programming.
+The goal of this project was to gain an understanding of crawling and parsing, while also working with search engines and measures to evaluate their responses, such as the cosine similarity and the tfIdf score. We were asked to create our own dataset by scraping the goodreads website and then create a search engine that would suggest books based on the user's query. We then focused on some book series, to analyze the total number of pages throughout their single books. Finally, we had to face some theory questions regarding recursive and dynamic programming.
 
 The repository consists of the following files:
 
